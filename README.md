@@ -97,7 +97,7 @@ DOCUMENTATION AND NOTES:
                                     This is to remedy files which have been corrupted or interrupted during writing.
                                 If template images are not available in dCache, the only backup check is in des51.b
                                     This is because des30.b is now depreciated and des41.b is not a general fix.
-********************************    The NCSA fetch currently returns a 403: FORBIDDEN error(!)  **************************************
+                            **  The NCSA fetch currently returns a 403: FORBIDDEN error(!)    **
                                     The NOAO fetch was never implemented on the original DAGMaker.sh
                                 If template images are still incomplete after this check, they are skipped.
                                     Line 694, "${SKIP_INCOMPLETE_SE}" == "false" changed to "${SKIP}" == "true"
@@ -112,7 +112,7 @@ DOCUMENTATION AND NOTES:
                         DAG job is submitted outside of the container for security reasons.
                         Uses jobsub client, which is only available on des70.fnal.gov
                         Actual file that is run is SEdiff.sh
-                            ** This is similar but NOT identical to gw-workflow/SEdiff.sh
+                            ** This is NOT identical to gw-workflow/SEdiff.sh
                                 Edits made:
                                     ./expCalib-isaac-BBH.py and ./expCalib-isaac-BNS.py are copied into the job folder earlier
                         Produces a jobsub out file for the exposure.
@@ -120,12 +120,12 @@ DOCUMENTATION AND NOTES:
                             This location can be used to check on the status of the job at 
                                 https://fifemon.fnal.gov/monitor/d/000000115/job-cluster-summary 
             
-****    In the future it would be wise to put a timer wait between SE processing and Post-Processing (!)    **************************
+    **  In the future it would be wise to put a timer wait between SE processing and Post-Processing (!)    **
 
         Post-Processing:
             Creates a ./PostProc directory if it doesn't already exist.
             This PostProc directory contains the essential contents of the Post-Processing folder and ./auto-PostProc.py
-************    It is not yet entirely certain if all of the essential contents of Post-Processing are actually present (!)    *******
+            **  It is not yet entirely certain if all of the essential contents of Post-Processing are actually present (!)    **
             Runs ./auto-PostProc.py within ./PostProc inside a container.
                 ** This is similar but NOT identical to DESGW-pipeline_automation/postprocessing_automations.py
                     Edits made:
@@ -140,10 +140,10 @@ DOCUMENTATION AND NOTES:
                 Creates a completed exposure list and a postproc ini file for the season.
                 If there are enough completed CCDs and exposures to move on, it continues with Post-Processing.
                 Runs diffimg_setup.sh within ./PostProc
-****************    If this is meant to setup and import everything needed for run_postproc.py, is is not successful.    *************
-****************    Probably what needs to be done is to make a new file ./auto-PostProc_setup.sh which sets up and imports what is needed for all of Post-Processing, then runs ./auto-PostProc.py    *******************************************************************
+                **  If this is meant to setup and import everything needed for run_postproc.py, is is not successful.    **
+                **  Probably what needs to be done is to make a new file ./auto-PostProc_setup.sh which sets up and imports what is needed for all of Post-Processing, then runs ./auto-PostProc.py    **
                 Runs run_postproc.py within ./PostProc, which in turn runs postproc.py
-****************    Fails to import pandas correctly, which means that a ./auto-PostProc_setup.sh is probably actually needed.    ****
+                **  Fails to import pandas correctly, which means that a ./auto-PostProc_setup.sh is probably actually needed.    **
                 Creates a ./PostProc_output directory for final results.
 
 CURRENT STATUS:
