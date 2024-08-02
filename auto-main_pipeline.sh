@@ -81,39 +81,41 @@ fi
     #exposures within band are run in series
         #this is to avoid accidentally cowriting to the same template images
 echo "Beginning SE processing"
-for band_list in "${BANDS[@]}" ; do (
-    #this declaration is necessary to loop over array of arrays
-    band="$band_list[@]"
-    for exposure in "${!band}" ; do
-        #make workspace directory for each exposure
-        if ! test -d ./${exposure} ; then
-            mkdir ./${exposure}
-            cp -rp ../auto-SEproc_scripts/gw-workflow/. ./${exposure}/
-            cp -p ./dagmaker.rc ./${exposure}
-        fi
-        cd ./${exposure}
+for band_list in "${BANDS[@]}" ; do 
+    
+    (
+        band="$band_list[@]"
+        #this declaration is necessary to loop over array of arrays
+        for exposure in "${!band}" ; do
+            #make workspace directory for each exposure
+            if ! test -d ./${exposure} ; then
+                mkdir ./${exposure}
+                cp -rp ../auto-SEproc_scripts/gw-workflow/. ./${exposure}/
+                cp -p ./dagmaker.rc ./${exposure}
+            fi
+            cd ./${exposure}
 
-        #run DAGMaker for each exposure if needed
-            #run as exec because DAG job must be submitted outside of container
-        if ! test -f ./desgw_pipeline_${exposure}.dag ; then
-            echo "running DAGMaker for ${exposure}"
-            /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin/apptainer exec -B /cvmfs,/home,/data/des90.a,/data/des90.b,/data/des80.a,/data/des80.b,/data/des70.a,/data/des70.b,/data/des91.a,/data/des91.b,/data/des81.a,/data/des81.b,/data/des71.a,/data/des71.b,/data/des61.a,/data/des61.b,/data/des60.a,/data/des60.b,/data/des51.a,/data/des51.b,/data/des50.a,/data/des50.b,/data/des40.a,/data/des40.b,/data/des41.a,/data/des41.b,/pnfs/des,/opt,/run/user,/etc/hostname,/etc/hosts,/etc/krb5.conf --ipc --pid /cvmfs/singularity.opensciencegrid.org/fermilab/fnal-dev-sl7:latest ./DAGMaker.sh $exposure &> ./dag_out.out
-        fi
+            #run DAGMaker for each exposure if needed
+                #run as exec because DAG job must be submitted outside of container
+            if ! test -f ./desgw_pipeline_${exposure}.dag ; then
+                echo "running DAGMaker for ${exposure}"
+                /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin/apptainer exec -B /cvmfs,/home,/data/des90.a,/data/des90.b,/data/des80.a,/data/des80.b,/data/des70.a,/data/des70.b,/data/des91.a,/data/des91.b,/data/des81.a,/data/des81.b,/data/des71.a,/data/des71.b,/data/des61.a,/data/des61.b,/data/des60.a,/data/des60.b,/data/des51.a,/data/des51.b,/data/des50.a,/data/des50.b,/data/des40.a,/data/des40.b,/data/des41.a,/data/des41.b,/pnfs/des,/opt,/run/user,/etc/hostname,/etc/hosts,/etc/krb5.conf --ipc --pid /cvmfs/singularity.opensciencegrid.org/fermilab/fnal-dev-sl7:latest ./DAGMaker.sh $exposure &> ./dag_out.out
+            fi
 
-        #submit DAG job for each exposure
-            #must be run on des70
-        if ! test -f ./jobsub_${exposure}.out ; then
-            echo "submitting DAG job for ${exposure}"
-            jobsub_submit_dag -G des --role=desgw --need-storage-modify /des/persistent/gw/exp --need-storage-modify /des/persistent/gw/forcephoto file://desgw_pipeline_${exposure}.dag &> jobsub_${exposure}.out
-        fi
+            #submit DAG job for each exposure
+                #must be run on des70
+            if ! test -f ./jobsub_${exposure}.out ; then
+                echo "submitting DAG job for ${exposure}"
+                jobsub_submit_dag -G des --role=desgw --need-storage-modify /des/persistent/gw/exp --need-storage-modify /des/persistent/gw/forcephoto file://desgw_pipeline_${exposure}.dag &> jobsub_${exposure}.out
+            fi
 
-        echo "SE processing complete for ${exposure}"
-        cd ..
-    done
-    echo "SE processing complete for ${band_list}"
-) &
+            echo "SE processing complete for ${exposure}"
+            cd ..
+        done
+        echo "SE processing complete for ${band_list}"
+    ) &
 done
-wait
+wait %% 2>/dev/null #we don't want the job control messages
 echo "SE processing complete"
 cd ..
 
@@ -121,17 +123,19 @@ cd ..
 # POSTPROCESSING #
 ##################
 
+#make directories for Post-Processing
 echo "Beginning PostProc setup"
-if ! test -d ./PostProc ; then
-    mkdir ./PostProc
-    cp -rp ./auto-PostProc_scripts/Post-Processing/. ./PostProc/
-    cp -p ./auto-PostProc.py ./PostProc/auto-PostProc.py
+if ! test -d ./Post-Processing ; then
+    mkdir ./Post-Processing
+    cp -rp ./auto-PostProc_scripts/Post-Processing/. ./Post-Processing/
+    cp -p ./auto-PostProc.py ./Post-Processing/auto-PostProc.py
 fi
-#this line is temporary
-cp -p ./auto-PostProc.py ./PostProc/auto-PostProc.py
 
-cd ./PostProc
+if ! test -d ./Post-Processing_output ; then
+    mkdir ./Post-Processing_output
+fi
 
+#run Post-Processing
 echo "Beginning PostProc"
-/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin/apptainer exec -B /cvmfs,/home,/data/des90.a,/data/des90.b,/data/des80.a,/data/des80.b,/data/des70.a,/data/des70.b,/data/des91.a,/data/des91.b,/data/des81.a,/data/des81.b,/data/des71.a,/data/des71.b,/data/des61.a,/data/des61.b,/data/des60.a,/data/des60.b,/data/des51.a,/data/des51.b,/data/des50.a,/data/des50.b,/data/des40.a,/data/des40.b,/data/des41.a,/data/des41.b,/pnfs/des,/opt,/run/user,/etc/hostname,/etc/hosts,/etc/krb5.conf --ipc --pid /cvmfs/singularity.opensciencegrid.org/fermilab/fnal-dev-sl7:latest python ./auto-PostProc.py --ligoid $LIGOID --triggerid $TRIGGERID --triggermjd $TRIGGERMJD &> ./postproc_out.out
+/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin/apptainer exec -B /cvmfs,/home,/data/des90.a,/data/des90.b,/data/des80.a,/data/des80.b,/data/des70.a,/data/des70.b,/data/des91.a,/data/des91.b,/data/des81.a,/data/des81.b,/data/des71.a,/data/des71.b,/data/des61.a,/data/des61.b,/data/des60.a,/data/des60.b,/data/des51.a,/data/des51.b,/data/des50.a,/data/des50.b,/data/des40.a,/data/des40.b,/data/des41.a,/data/des41.b,/pnfs/des,/opt,/run/user,/etc/hostname,/etc/hosts,/etc/krb5.conf --ipc --pid /cvmfs/singularity.opensciencegrid.org/fermilab/fnal-dev-sl7:latest ./auto-PostProc_setup.sh
 echo "PostProc complete"

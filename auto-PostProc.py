@@ -28,7 +28,6 @@ args = parser.parse_args()
 # Run post-processing pipeline
 
 # In[ ]:
-
 #Read file outputted from image processing to get season, exposure, band, and propid
 img_proc_file = open("../SE_output/output.txt")
 lines = img_proc_file.readlines()
@@ -183,9 +182,12 @@ postproc_season_file = './postproc_'+ str(season) + '.ini'
 template_ini_file = open('./postproc.ini', 'r')
 season_ini_file = open(postproc_season_file, 'w')
 
+outdir = "../Post-Processing_output"
+
 #this has to be done manually because our configParser is built for Python 2.7
-writeline = True
 for line in template_ini_file.readlines():
+    writeline = True
+
     if "season = " in line:     
         writeline = False                                        
         season_ini_file.write("season = " + str(season) + "\n")
@@ -217,10 +219,13 @@ for line in template_ini_file.readlines():
         writeline = False
         season_ini_file.write("bands = " + str(bandslist) + "\n")
 
+    elif  "outdir = " in line: 
+        writeline = False
+        season_ini_file.write("outdir = " + outdir + "\n")
+
 
     if writeline == True: season_ini_file.write(line)
 
-    if "outdir = " in line: outdir = line.split(" = ") [-1]
     if "plusname = " in line: truthplusfile = line.split(" = ") [-1]
 
 # In[ ]:
@@ -249,9 +254,9 @@ os.system('. ./diffimg_setup.sh')
 
 print('running forcephoto\n')
 os.system('. ./update_forcephoto_links.sh')
-    
-print('running postproc\n')
+
 #run_postproc.py
+print('running postproc\n')
 try:
     SKIPTO_flag
 except NameError:

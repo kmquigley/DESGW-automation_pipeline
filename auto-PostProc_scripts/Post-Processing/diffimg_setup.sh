@@ -1,7 +1,7 @@
 
 ##### edit these lines before running the code:
 export ROOTDIR=/pnfs/des/persistent/gw
-export ROOTDIR2=$(pwd) #This should just be where you are running /data/des40.b/data/nsherman/postprocBig 
+export ROOTDIR2=$PWD #This should just be where you are running /data/des40.b/data/nsherman/postprocBig 
 #export SEASON=416 
 #####
 source /cvmfs/des.opensciencegrid.org/eeups/startupcachejob31i.sh
@@ -31,7 +31,7 @@ setup extralibs 1.1
 setup astropy 0.4.2+6
 setup psycopg2 2.4.6+8
 setup -j healpy 1.8.1+3
-setup pandas 0.15.2+3
+setup -j pandas 0.15.2+3
 
 #setup html
 #echo "EUPS setup complete"
